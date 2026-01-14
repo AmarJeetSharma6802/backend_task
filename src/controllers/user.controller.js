@@ -6,7 +6,6 @@ const auth = async (req, res) => {
   try {
     const { name, email, password, action } = req.body;
 
-    
     if (action === "register") {
       if (!name || !email || !password) {
         return res.status(400).json({ message: "All fields are required" });
@@ -31,7 +30,6 @@ const auth = async (req, res) => {
       });
     }
 
-    
     if (action === "login") {
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password required" });
@@ -40,10 +38,6 @@ const auth = async (req, res) => {
       const user = await UserData.findOne({ email });
       if (!user) {
         return res.status(404).json({ message: "User not found" });
-      }
-
-      if (!user.isVerified) {
-        return res.status(400).json({ message: "Email not verified" });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
@@ -69,15 +63,15 @@ const auth = async (req, res) => {
       return res
         .cookie("accessToken", accessToken, {
           httpOnly: true,
-          secure: true,           
-          sameSite: "None",       
-          maxAge: 15 * 60 * 1000, 
+          secure: true,
+          sameSite: "None",
+          maxAge: 15 * 60 * 1000,
         })
         .cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: true,
           sameSite: "None",
-          maxAge: 7 * 24 * 60 * 60 * 1000, 
+          maxAge: 7 * 24 * 60 * 60 * 1000,
         })
         .status(200)
         .json({
@@ -90,7 +84,6 @@ const auth = async (req, res) => {
       message: "Invalid action",
       receivedAction: action,
     });
-
   } catch (error) {
     console.error("Auth error:", error);
     return res.status(500).json({
@@ -98,5 +91,31 @@ const auth = async (req, res) => {
     });
   }
 };
+const logout = async (req, res) => {
+  await UserData.findByIdAndUpdate(req.user._id, {
+    refreshToken: null,
+  });
 
-export default auth;
+  return res
+    .status(201)
+    .clearCookie("accessToken", { httpOnly: true, secure: true })
+    .clearCookie("refreshToken", { httpOnly: true, secure: true })
+    .json({ message: "User logged out" });
+};
+
+const fetchData = async (req, res) => {
+  return res
+    .status(200)
+    .json({ message: "findUser found successfully", user: req.user });
+};
+
+const getData = async (req, res) => {
+  const foundUser = await UserData.find();
+
+  if (!foundUser.length) {
+    return res.status(404).json({ message: "No users found" });
+  }
+
+  return res.status(201).json({ message: "user found succefully", foundUser });
+};
+export { auth, logout, getData,fetchData };
