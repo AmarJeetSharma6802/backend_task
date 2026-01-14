@@ -64,7 +64,6 @@ const auth = async (req, res) => {
 
     const isProd = process.env.NODE_ENV === "production";
 
-    // 5️⃣ Cookie set
     return res
       .cookie("accessToken", accessToken, {
         httpOnly: true,
