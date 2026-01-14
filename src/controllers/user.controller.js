@@ -31,53 +31,62 @@ const auth = async (req, res) => {
     }
 
     if (action === "login") {
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password required" });
-      }
+       const { email, password } = req.body;
 
-      const user = await UserData.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Incorrect password" });
-      }
+    const user = await UserData.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-      const accessToken = jwt.sign(
-        { user_id: user._id },
-        process.env.ACCESSTOKEN,
-        { expiresIn: "15m" }
-      );
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
 
-      const refreshToken = jwt.sign(
-        { user_id: user._id },
-        process.env.REFRESHTOKEN,
-        { expiresIn: "7d" }
-      );
+    const accessToken = jwt.sign(
+      { user_id: user._id },
+      process.env.ACCESSTOKEN,
+      { expiresIn: "15m" }
+    );
 
-      user.refreshToken = refreshToken;
-      await user.save();
+    const refreshToken = jwt.sign(
+      { user_id: user._id },
+      process.env.REFRESHTOKEN,
+      { expiresIn: "7d" }
+    );
 
-      return res
-        .cookie("accessToken", accessToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
-          maxAge: 15 * 60 * 1000,
-        })
-        .cookie("refreshToken", refreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        })
-        .status(200)
-        .json({
-          message: "Login successful",
-          user,
-        });
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    // 5️⃣ Cookie set
+    return res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "None" : "Lax",
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "None" : "Lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        message: "Login successful",
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      });
     }
 
     return res.status(400).json({
