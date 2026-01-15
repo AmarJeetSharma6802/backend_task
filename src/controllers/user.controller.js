@@ -79,6 +79,7 @@ const auth = async (req, res) => {
         .json({
           message: "Login successful",
           user,
+          accessToken
         });
     }
 
