@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 
 export async function authUser(req, res, next) {
   try {
-    const token = req.cookies?.accessToken;
+    const token =
+      req.cookies?.accessToken ||
+      req.headers.authorization?.replace("Bearer ", "");
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized Token" });
@@ -22,6 +24,7 @@ export async function authUser(req, res, next) {
     req.user = user;
     next();
   } catch (error) {
+    console.error("Auth error:", error);
     return res.status(401).json({ message: "Invalid Token" });
   }
 }
