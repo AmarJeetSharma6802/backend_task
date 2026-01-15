@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 app.use(cors({
     origin: "https://task-fronted-three.vercel.app",
-    credentials: true,
+    credentials: true, 
 }));
 
 connectDB()
