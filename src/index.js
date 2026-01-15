@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(cors({
-    origin: "https://task-fronted-three.vercel.app",
+    origin: "https://task-fronted-opal.vercel.app",
     credentials: true,  
 }));
 
