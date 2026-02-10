@@ -62,9 +62,19 @@ const deleteTask = async (req, res) => {
     });
 }
 
+const getTask = async(req,res)=>{
+
+    const findTask = await Task.find()
+
+
+    return res.status(201).json({ message: "Task found successfully",findTask });
+}
+
+
 
 export {
     CreateTask,
     updateTaks,
     deleteTask
+    ,getTask
 }
