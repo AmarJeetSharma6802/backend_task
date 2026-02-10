@@ -14,7 +14,7 @@ router.route("/getData").get(getData)
 
 // Task route 
 
-router.route("/getTask").post(authUser ,getTask)
+router.route("/getTask").get(authUser ,getTask)
 router.route("/createTask").post(authUser ,CreateTask)
 router.route("/updateTaks/:id").put(authUser ,updateTaks)
 router.route("/deleteTask/:id").delete(authUser,deleteTask)
