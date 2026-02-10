@@ -12,6 +12,7 @@ export async function authUser(req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.ACCESSTOKEN);
+    console.log("SECRET:", process.env.ACCESSTOKEN);
 
     const user = await UserData.findById(decoded.user_id).select(
       "-password -refreshToken -__v"
