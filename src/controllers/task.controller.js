@@ -65,7 +65,7 @@ const deleteTask = async (req, res) => {
     });
 }
 
-export const getTask = async (req, res) => {
+const getTask = async (req, res) => {
   try {
     const tasks = await Task.find({ user: req.user.id });
     res.json(tasks);
