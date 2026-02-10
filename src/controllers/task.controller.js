@@ -25,11 +25,11 @@ const updateTaks = async (req, res) => {
 
     let updateTaks = { title, description };
 
-    const uptTask = await Task.findOneAndUpdate(
-       id,
-      updateTaks,
-      { new: true }
-    );
+   const uptTask = await Task.findOneAndUpdate(
+  { _id: id, user: req.user.id },
+  updateTaks,
+  { new: true }
+);
 
     if (!uptTask) {
       return res.status(404).json({ message: "Task not found" });
@@ -48,7 +48,10 @@ const deleteTask = async (req, res) => {
 
      const { id } = req.params;
 
-    const deletedTask = await Task.findOneAndDelete(id);
+   const deletedTask = await Task.findOneAndDelete({
+  _id: id,
+  user: req.user.id,
+});
 
     if (!deletedTask) {
       return res.status(404).json({
